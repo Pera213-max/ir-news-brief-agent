@@ -44,45 +44,45 @@ class DemoLLM(BaseLLM):
         ir_releases = context.get("ir_releases", [])
         news_items = context.get("news", [])
 
-        # Generate summary bullets from actual data
+        # Generate summary bullets from actual data (Finnish)
         summary_bullets = []
         if ir_releases:
             summary_bullets.append(
-                f"{ticker} released {len(ir_releases)} IR announcements in the review period."
+                f"{ticker} julkaisi {len(ir_releases)} IR-tiedotetta tarkastelujaksolla."
             )
             if ir_releases[0].get("title"):
-                summary_bullets.append(f"Key IR highlight: {ir_releases[0]['title']}")
+                summary_bullets.append(f"Tärkein IR-uutinen: {ir_releases[0]['title']}")
 
         if news_items:
             summary_bullets.append(
-                f"Media coverage includes {len(news_items)} relevant news articles."
+                f"Mediakattavuus sisältää {len(news_items)} relevanttia uutista."
             )
             sources = set(item.get("source", "") for item in news_items[:3])
-            summary_bullets.append(f"Coverage from: {', '.join(filter(None, sources))}")
+            summary_bullets.append(f"Uutislähteet: {', '.join(filter(None, sources))}")
 
         # Ensure we have at least 3 bullets
         while len(summary_bullets) < 3:
-            summary_bullets.append("The company maintains active investor communications.")
+            summary_bullets.append("Yritys ylläpitää aktiivista sijoittajaviestintää.")
 
-        # Generate drivers based on data
+        # Generate drivers based on data (Finnish)
         drivers = [
-            "Strong Q4 earnings performance exceeding analyst expectations",
-            "Strategic partnerships expanding cloud and 5G capabilities",
-            "Growing enterprise demand for private network solutions",
+            "Vahva Q4-tulos ylitti analyytikoiden odotukset",
+            "Strategiset kumppanuudet laajentavat pilvi- ja 5G-kyvykkyyksiä",
+            "Kasvava yrityskysyntä yksityisille verkkoratkaisuille",
         ]
 
-        # Generate risks
+        # Generate risks (Finnish)
         risks = [
-            "Supply chain constraints may impact production capacity",
-            "Competitive pressure from major telecom equipment vendors",
-            "Currency fluctuations affecting EUR-denominated revenues",
+            "Toimitusketjun rajoitukset voivat vaikuttaa tuotantokapasiteettiin",
+            "Kilpailupaine suurilta televiestintälaitevalmistajilta",
+            "Valuuttakurssien vaikutus EUR-määräisiin tuloihin",
         ]
 
-        # Limitations disclaimer
+        # Limitations disclaimer (Finnish)
         limitations = [
-            "This brief was generated in demo mode using sample data.",
-            "Actual market conditions may differ from sample scenarios.",
-            "Not intended as investment advice. Consult a financial advisor.",
+            "Tämä tiivistelmä on luotu demo-tilassa esimerkkidatalla.",
+            "Todelliset markkinaolosuhteet voivat poiketa esimerkkiskenaarioista.",
+            "Ei sijoitusneuvontaa. Konsultoi talousneuvoja.",
         ]
 
         return {
@@ -191,22 +191,23 @@ class GeminiLLM(BaseLLM):
         ir_releases = context.get("ir_releases", [])
         news_items = context.get("news", [])
 
-        # Build prompt for Gemini
-        prompt = f"""You are a financial analyst creating a brief for {ticker}.
+        # Build prompt for Gemini - Finnish output
+        prompt = f"""Olet talousanalyytikko, joka luo tiivistelmän yrityksestä {ticker}.
 
-Based on the following data, generate:
-1. summary_bullets: 3-6 key summary points
-2. drivers: 3 key growth drivers
-3. risks: 3 key risks
+Alla olevan datan perusteella, luo SUOMEKSI:
+1. summary_bullets: 3-6 tärkeintä huomiota (suomeksi)
+2. drivers: 3 keskeistä kasvuajuria (suomeksi)
+3. risks: 3 keskeistä riskiä (suomeksi)
 
-IR Releases:
+IR-tiedotteet:
 {self._format_items(ir_releases)}
 
-News Items:
+Uutiset:
 {self._format_items(news_items)}
 
-Respond in JSON format with keys: summary_bullets, drivers, risks, limitations.
-Include a limitations array with disclaimers about the analysis."""
+Vastaa JSON-muodossa avaimilla: summary_bullets, drivers, risks, limitations.
+Sisällytä limitations-taulukko varoituksilla analyysistä (suomeksi).
+TÄRKEÄÄ: Kaikki tekstit SUOMEKSI."""
 
         try:
             response_text = self.generate(prompt)
@@ -226,8 +227,8 @@ Include a limitations array with disclaimers about the analysis."""
                     "limitations": result.get(
                         "limitations",
                         [
-                            "Generated using AI analysis.",
-                            "Not intended as investment advice.",
+                            "Luotu tekoälyanalyysillä.",
+                            "Ei sijoitusneuvontaa.",
                         ],
                     ),
                 }
