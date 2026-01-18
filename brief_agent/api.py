@@ -2,11 +2,10 @@
 
 import json
 from pathlib import Path
-from typing import List
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.staticfiles import StaticFiles
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .core import Agent
@@ -74,7 +73,7 @@ async def list_briefs():
                 })
         except Exception:
             continue
-            
+
     # Sort by date (newest first)
     return sorted(briefs, key=lambda x: x["timestamp"], reverse=True)
 
@@ -85,7 +84,7 @@ async def get_brief_content(filename: str):
     file_path = OUTPUT_DIR / filename
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Brief not found")
-        
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             if filename.endswith(".json"):

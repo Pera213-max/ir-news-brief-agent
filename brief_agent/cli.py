@@ -33,7 +33,7 @@ def main() -> int:
     run_parser.add_argument(
         "--mode",
         "-m",
-        choices=["demo", "openai", "anthropic"],
+        choices=["demo", "openai", "anthropic", "gemini"],
         default="demo",
         help="LLM mode (default: demo)",
     )
@@ -66,7 +66,7 @@ def main() -> int:
 
     if args.command == "run":
         return run_brief(args)
-    
+
     if args.command == "ui":
         return run_ui(args)
 

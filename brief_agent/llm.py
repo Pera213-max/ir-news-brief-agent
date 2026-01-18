@@ -160,12 +160,97 @@ class AnthropicLLM(BaseLLM):
         return demo.generate_sections(context)
 
 
+class GeminiLLM(BaseLLM):
+    """Google Gemini-based LLM implementation (requires GEMINI_API_KEY)."""
+
+    def __init__(self):
+        self.logger = get_logger()
+        self.api_key = os.getenv("GEMINI_API_KEY")
+        if not self.api_key:
+            raise ValueError("GEMINI_API_KEY not found in environment")
+        self.logger.info("Initialized Gemini LLM")
+
+    def generate(self, prompt: str, context: dict[str, Any] | None = None) -> str:
+        """Generate text using Gemini API."""
+        try:
+            from google import genai
+
+            client = genai.Client(api_key=self.api_key)
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+            )
+            return response.text or ""
+        except Exception as e:
+            self.logger.error(f"Gemini API error: {e}")
+            raise
+
+    def generate_sections(self, context: dict[str, Any]) -> dict[str, Any]:
+        """Generate sections using Gemini."""
+        ticker = context.get("ticker", "UNKNOWN")
+        ir_releases = context.get("ir_releases", [])
+        news_items = context.get("news", [])
+
+        # Build prompt for Gemini
+        prompt = f"""You are a financial analyst creating a brief for {ticker}.
+
+Based on the following data, generate:
+1. summary_bullets: 3-6 key summary points
+2. drivers: 3 key growth drivers
+3. risks: 3 key risks
+
+IR Releases:
+{self._format_items(ir_releases)}
+
+News Items:
+{self._format_items(news_items)}
+
+Respond in JSON format with keys: summary_bullets, drivers, risks, limitations.
+Include a limitations array with disclaimers about the analysis."""
+
+        try:
+            response_text = self.generate(prompt)
+            # Try to parse JSON from response
+            import json
+            import re
+
+            # Extract JSON from response (may be wrapped in markdown code blocks)
+            json_match = re.search(r'\{[\s\S]*\}', response_text)
+            if json_match:
+                result = json.loads(json_match.group())
+                # Ensure all required keys exist
+                return {
+                    "summary_bullets": result.get("summary_bullets", [])[:6],
+                    "drivers": result.get("drivers", []),
+                    "risks": result.get("risks", []),
+                    "limitations": result.get("limitations", [
+                        "Generated using AI analysis.",
+                        "Not intended as investment advice.",
+                    ]),
+                }
+        except Exception as e:
+            self.logger.warning(f"Failed to parse Gemini response: {e}, using demo fallback")
+
+        # Fallback to demo if parsing fails
+        demo = DemoLLM()
+        return demo.generate_sections(context)
+
+    def _format_items(self, items: list) -> str:
+        """Format items for the prompt."""
+        if not items:
+            return "No items available."
+        return "\n".join(
+            f"- {item.get('title', 'No title')}: {item.get('summary', item.get('source', ''))}"
+            for item in items[:5]
+        )
+
+
 def get_llm(mode: str = "demo") -> BaseLLM:
     """
     Factory function to get the appropriate LLM based on mode and available keys.
 
     Args:
-        mode: "demo", "openai", or "anthropic"
+        mode: "demo", "openai", "anthropic", or "gemini"
 
     Returns:
         An LLM instance. Falls back to DemoLLM if requested LLM is unavailable.
@@ -189,6 +274,14 @@ def get_llm(mode: str = "demo") -> BaseLLM:
             logger.warning("Anthropic API key not found, falling back to demo mode")
             return DemoLLM()
 
+    if mode == "gemini":
+        try:
+            return GeminiLLM()
+        except ValueError:
+            logger.warning("Gemini API key not found, falling back to demo mode")
+            return DemoLLM()
+
     # Default fallback
     logger.info(f"Unknown mode '{mode}', using demo mode")
     return DemoLLM()
+
