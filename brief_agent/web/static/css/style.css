@@ -9,7 +9,7 @@
     --border: #334155;
     --danger: #ef4444;
     --success: #22c55e;
-    
+
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --modal-overlay: rgba(0, 0, 0, 0.75);
 }
@@ -76,7 +76,8 @@ label {
     color: var(--text-secondary);
 }
 
-input, select {
+input,
+select {
     width: 100%;
     padding: 0.5rem 0.75rem;
     background-color: var(--bg-dark);
@@ -88,7 +89,8 @@ input, select {
     transition: border-color 0.2s;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
     border-color: var(--accent);
 }
@@ -198,6 +200,7 @@ input:focus, select:focus {
     color: var(--text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -244,18 +247,42 @@ input:focus, select:focus {
 .modal-body {
     padding: 2rem;
     overflow-y: auto;
-    font-family: monospace;
+    font-family: 'Inter', sans-serif;
     white-space: pre-wrap;
-    background-color: #111;
-    color: #ddd;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
     flex-grow: 1;
+    line-height: 1.8;
+    font-size: 0.95rem;
+}
+
+/* Markdown-style rendering in modal */
+.modal-body h1,
+.modal-body h2,
+.modal-body h3 {
+    color: var(--accent);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body strong {
+    color: var(--text-primary);
+}
+
+.modal-body a {
+    color: var(--accent);
+}
+
+.modal-body ul,
+.modal-body li {
+    margin-left: 1rem;
 }
 
 /* Spinner */
 .spinner {
     width: 1rem;
     height: 1rem;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 1s linear infinite;
@@ -266,7 +293,9 @@ input:focus, select:focus {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .status-msg {
