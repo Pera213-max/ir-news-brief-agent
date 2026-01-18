@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elements
+    // Elementit
     const generateForm = document.getElementById('generateForm');
     const briefsGrid = document.getElementById('briefsGrid');
     const modal = document.getElementById('briefModal');
@@ -12,17 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusMsg = document.getElementById('statusMsg');
     const copyBtn = document.getElementById('copyBtn');
 
-    // Default Date
+    // Oletuspäivämäärä
     document.getElementById('date').valueAsDate = new Date();
 
-    // Load Briefs on start
+    // Lataa tiivistelmät käynnistyksen yhteydessä
     fetchBriefs();
 
-    // Event Listeners
+    // Tapahtumakuuntelijat
     refreshBtn.addEventListener('click', fetchBriefs);
     closeModal.addEventListener('click', () => modal.classList.add('hidden'));
-    
-    // Close modal on outside click
+
+    // Sulje modaali klikkaamalla ulkopuolelle
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
     });
@@ -30,15 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     copyBtn.addEventListener('click', () => {
         const text = modalBody.innerText;
         navigator.clipboard.writeText(text).then(() => {
-            copyBtn.textContent = 'Copied!';
-            setTimeout(() => copyBtn.textContent = 'Copy text', 2000);
+            copyBtn.textContent = 'Kopioitu!';
+            setTimeout(() => copyBtn.textContent = 'Kopioi teksti', 2000);
         });
     });
 
-    // Handle Generation
+    // Tiivistelmän luonti
     generateForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData(generateForm);
         const data = {
             ticker: formData.get('ticker'),
@@ -46,10 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mode: formData.get('mode')
         };
 
-        // UI State: Loading
+        // UI-tila: Lataus
         generateBtn.disabled = true;
         spinner.classList.remove('hidden');
-        statusMsg.textContent = "Generating brief... this may take a moment.";
+        statusMsg.textContent = "Luodaan tiivistelmää... tämä voi kestää hetken.";
         statusMsg.style.color = "var(--text-secondary)";
 
         try {
@@ -60,10 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (res.ok) {
-                statusMsg.textContent = "Generation started! refreshing shortly...";
+                statusMsg.textContent = "Luonti aloitettu! Päivitetään pian...";
                 statusMsg.style.color = "var(--success)";
-                
-                // Poll for updates a few times
+
+                // Tarkista päivitykset muutaman kerran
                 let checks = 0;
                 const interval = setInterval(async () => {
                     await fetchBriefs();
@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (checks > 10) clearInterval(interval);
                 }, 2000);
             } else {
-                throw new Error("API Error");
+                throw new Error("API-virhe");
             }
         } catch (err) {
             console.error(err);
-            statusMsg.textContent = "Error starting generation.";
+            statusMsg.textContent = "Virhe luonnissa.";
             statusMsg.style.color = "var(--danger)";
         } finally {
             setTimeout(() => {
@@ -85,16 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to fetch and display briefs
+    // Hae ja näytä tiivistelmät
     async function fetchBriefs() {
         try {
             const res = await fetch('/api/briefs');
             const briefs = await res.json();
-            
+
             briefsGrid.innerHTML = '';
-            
+
             if (briefs.length === 0) {
-                briefsGrid.innerHTML = '<div class="loading-state">No briefs found. Generate one!</div>';
+                briefsGrid.innerHTML = '<div class="loading-state">Ei tiivistelmiä. Luo ensimmäinen!</div>';
                 return;
             }
 
@@ -103,8 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 briefsGrid.appendChild(card);
             });
         } catch (err) {
-            console.error("Failed to fetch briefs", err);
-            briefsGrid.innerHTML = '<div class="loading-state">Error loading briefs.</div>';
+            console.error("Tiivistelmien haku epäonnistui", err);
+            briefsGrid.innerHTML = '<div class="loading-state">Virhe tiivistelmien latauksessa.</div>';
         }
     }
 
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.innerHTML = `
             <h3>${brief.ticker}</h3>
             <span class="date">${brief.date}</span>
-            <div class="preview">Click to view content...</div>
+            <div class="preview">Klikkaa nähdäksesi sisällön...</div>
         `;
         div.addEventListener('click', () => openModal(brief.filename));
         return div;
@@ -122,33 +122,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function openModal(filename) {
         modal.classList.remove('hidden');
-        modalBody.innerHTML = 'Loading content...';
+        modalBody.innerHTML = 'Ladataan sisältöä...';
         modalTitle.textContent = filename;
 
         try {
-            // Prefer MD view if available, we'll try to find the matching MD file
-            // But the API lists JSON. Let's just guess the MD name or fetch JSON content
-            // The API logic returns content based on extension.
-            // Let's try to fetch the .md version if we clicked a json one, or just fetch what we have.
-            
+            // Yritä hakea MD-versio ensin
             const target = filename.replace('.json', '.md');
             let res = await fetch(`/api/briefs/${target}`);
-            
+
             if (!res.ok) {
-                // Fallback to original filename
+                // Varasuunnitelma: hae alkuperäinen tiedosto
                 res = await fetch(`/api/briefs/${filename}`);
             }
 
             const data = await res.json();
-            
+
             if (data.content) {
-                modalBody.textContent = data.content; // It's MD string
+                modalBody.textContent = data.content; // MD-merkkijono
             } else {
-                modalBody.textContent = JSON.stringify(data, null, 2); // It's JSON object
+                modalBody.textContent = JSON.stringify(data, null, 2); // JSON-objekti
             }
 
         } catch (err) {
-            modalBody.textContent = "Error loading content.";
+            modalBody.textContent = "Virhe sisällön latauksessa.";
         }
     }
 });

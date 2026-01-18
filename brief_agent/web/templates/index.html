@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IR & News Brief Agent</title>
+    <title>IR & Uutis Tiivistelmä</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,39 +13,39 @@
 
 <body>
     <div class="app-container">
-        <!-- Sidebar / Action Panel -->
+        <!-- Sivupalkki -->
         <aside class="sidebar">
             <div class="brand">
-                <h1>IR Agent</h1>
-                <p>Command Center</p>
+                <h1>IR Agentti</h1>
+                <p>Tiivistelmägeneraattori</p>
             </div>
 
             <div class="control-panel">
-                <h2>Generate New Brief</h2>
+                <h2>Luo uusi tiivistelmä</h2>
                 <form id="generateForm">
                     <div class="form-group">
-                        <label for="ticker">Ticker</label>
-                        <input type="text" id="ticker" name="ticker" placeholder="NOKIA.HE" required>
+                        <label for="ticker">Osake (Ticker)</label>
+                        <input type="text" id="ticker" name="ticker" placeholder="NDA-FI.HE" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="date">Date</label>
+                        <label for="date">Päivämäärä</label>
                         <input type="date" id="date" name="date" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="mode">Mode</label>
+                        <label for="mode">Tila</label>
                         <select id="mode" name="mode">
-                            <option value="demo">Demo (Sample Data)</option>
-                            <option value="live">Live (Real Data)</option>
-                            <option value="gemini">Gemini AI</option>
+                            <option value="demo">Demo (Esimerkkidata)</option>
+                            <option value="live">Live (Oikea data)</option>
+                            <option value="gemini" selected>Gemini AI (Suositeltu)</option>
                             <option value="openai">OpenAI</option>
                             <option value="anthropic">Anthropic</option>
                         </select>
                     </div>
 
                     <button type="submit" class="btn-primary" id="generateBtn">
-                        <span class="btn-text">Generate Brief</span>
+                        <span class="btn-text">Luo tiivistelmä</span>
                         <div class="spinner hidden"></div>
                     </button>
                     <p id="statusMsg" class="status-msg"></p>
@@ -53,37 +53,37 @@
             </div>
 
             <div class="info-box">
-                <p><strong>Live mode:</strong> Fetches real news from the internet. <strong>Gemini AI:</strong>
-                    Generates analysis using AI.</p>
+                <p><strong>Gemini AI:</strong> Hakee oikeat uutiset ja luo AI-analyysin. <strong>Live:</strong> Oikea
+                    data ilman AI-analyysiä.</p>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Pääsisältö -->
         <main class="main-content">
             <header class="top-bar">
-                <h2>Recent Briefs</h2>
-                <button id="refreshBtn" class="btn-icon" title="Refresh list">↻</button>
+                <h2>Viimeisimmät tiivistelmät</h2>
+                <button id="refreshBtn" class="btn-icon" title="Päivitä lista">↻</button>
             </header>
 
             <div id="briefsGrid" class="briefs-grid">
-                <!-- Brief cards will be injected here -->
-                <div class="loading-state">Loading briefs...</div>
+                <!-- Tiivistelmäkortit tulevat tähän -->
+                <div class="loading-state">Ladataan tiivistelmiä...</div>
             </div>
         </main>
     </div>
 
-    <!-- Modal for Brief View -->
+    <!-- Tiivistelmän katselumodaali -->
     <div id="briefModal" class="modal hidden">
         <div class="modal-content">
             <header class="modal-header">
-                <h2 id="modalTitle">Brief Content</h2>
+                <h2 id="modalTitle">Tiivistelmän sisältö</h2>
                 <div class="modal-actions">
-                    <button id="copyBtn" class="btn-secondary">Copy text</button>
+                    <button id="copyBtn" class="btn-secondary">Kopioi teksti</button>
                     <button id="closeModal" class="btn-icon">×</button>
                 </div>
             </header>
             <div class="modal-body" id="modalBody">
-                <!-- Content injected here -->
+                <!-- Sisältö ladataan tähän -->
             </div>
         </div>
     </div>

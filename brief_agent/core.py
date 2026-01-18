@@ -114,9 +114,12 @@ class Agent:
 
     def _execute_step(self, step) -> None:
         """Execute a single plan step."""
+        # Use live data for all modes except demo
+        use_live_data = self.mode != "demo"
+
         match step.step_type:
             case StepType.LOAD_IR:
-                if self.mode == "live":
+                if use_live_data:
                     # Fetch live IR data
                     stock_info = self.context.get("stock_info", {})
                     company_name = stock_info.get("name", "")
@@ -129,7 +132,7 @@ class Agent:
                     )
 
             case StepType.LOAD_NEWS:
-                if self.mode == "live":
+                if use_live_data:
                     # First fetch stock info for company name
                     if "stock_info" not in self.context:
                         self.context["stock_info"] = fetch_live_stock_info(step.params["ticker"])
