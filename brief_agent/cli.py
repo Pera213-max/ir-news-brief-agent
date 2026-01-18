@@ -33,9 +33,9 @@ def main() -> int:
     run_parser.add_argument(
         "--mode",
         "-m",
-        choices=["demo", "openai", "anthropic", "gemini"],
+        choices=["demo", "live", "gemini", "openai", "anthropic"],
         default="demo",
-        help="LLM mode (default: demo)",
+        help="LLM mode (default: demo, live uses real data)",
     )
     run_parser.add_argument(
         "--output-dir",

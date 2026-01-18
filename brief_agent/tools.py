@@ -68,6 +68,124 @@ def read_sample_news(ticker: str, date: str) -> list[dict[str, Any]]:
         return []
 
 
+def fetch_live_stock_info(ticker: str) -> dict[str, Any]:
+    """
+    Fetch live stock information using yfinance.
+
+    Args:
+        ticker: Stock ticker symbol (e.g., 'NDA-FI.HE', 'NOKIA.HE')
+
+    Returns:
+        Dictionary with stock information
+    """
+    logger = get_logger()
+    logger.info(f"Fetching live stock info for {ticker}")
+
+    try:
+        import yfinance as yf
+
+        stock = yf.Ticker(ticker)
+        info = stock.info
+
+        return {
+            "ticker": ticker,
+            "name": info.get("longName", info.get("shortName", ticker)),
+            "sector": info.get("sector", "N/A"),
+            "industry": info.get("industry", "N/A"),
+            "market_cap": info.get("marketCap", "N/A"),
+            "currency": info.get("currency", "EUR"),
+            "price": info.get("currentPrice", info.get("regularMarketPrice", "N/A")),
+            "website": info.get("website", ""),
+        }
+    except Exception as e:
+        logger.warning(f"Failed to fetch stock info: {e}")
+        return {"ticker": ticker, "name": ticker, "error": str(e)}
+
+
+def fetch_live_news(ticker: str, company_name: str = "") -> list[dict[str, Any]]:
+    """
+    Fetch live news using DuckDuckGo search.
+
+    Args:
+        ticker: Stock ticker symbol
+        company_name: Company name for better search results
+
+    Returns:
+        List of news item dictionaries
+    """
+    logger = get_logger()
+    search_query = company_name if company_name else ticker.split(".")[0]
+    logger.info(f"Fetching live news for: {search_query}")
+
+    try:
+        from duckduckgo_search import DDGS
+
+        with DDGS() as ddgs:
+            results = list(ddgs.news(f"{search_query} stock news", max_results=10))
+
+        news_items = []
+        for item in results:
+            news_items.append(
+                {
+                    "title": item.get("title", ""),
+                    "source": item.get("source", "Web"),
+                    "url": item.get("url", ""),
+                    "date": item.get("date", ""),
+                    "summary": item.get("body", "")[:200] if item.get("body") else "",
+                }
+            )
+
+        logger.info(f"Fetched {len(news_items)} live news items")
+        return news_items
+
+    except Exception as e:
+        logger.warning(f"Failed to fetch live news: {e}")
+        return []
+
+
+def fetch_live_ir(ticker: str, company_name: str = "") -> list[dict[str, Any]]:
+    """
+    Fetch IR/press releases using DuckDuckGo search.
+
+    Args:
+        ticker: Stock ticker symbol
+        company_name: Company name for better search results
+
+    Returns:
+        List of IR release dictionaries
+    """
+    logger = get_logger()
+    search_query = company_name if company_name else ticker.split(".")[0]
+    logger.info(f"Fetching live IR releases for: {search_query}")
+
+    try:
+        from duckduckgo_search import DDGS
+
+        with DDGS() as ddgs:
+            results = list(
+                ddgs.news(f"{search_query} investor relations press release", max_results=5)
+            )
+
+        ir_items = []
+        for item in results:
+            ir_items.append(
+                {
+                    "title": item.get("title", ""),
+                    "source": item.get("source", "IR"),
+                    "url": item.get("url", ""),
+                    "date": item.get("date", ""),
+                    "summary": item.get("body", "")[:200] if item.get("body") else "",
+                }
+            )
+
+        logger.info(f"Fetched {len(ir_items)} live IR releases")
+        return ir_items
+
+    except Exception as e:
+        logger.warning(f"Failed to fetch live IR: {e}")
+        return []
+
+
 def select_top_items(
     items: list[dict[str, Any]], n: int = 5, sort_by: str = "date"
 ) -> list[dict[str, Any]]:

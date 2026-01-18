@@ -7,6 +7,9 @@ from .llm import get_llm
 from .planner import Planner, StepType
 from .schemas import BriefOutput, IRRelease, NewsItem
 from .tools import (
+    fetch_live_ir,
+    fetch_live_news,
+    fetch_live_stock_info,
     llm_generate_sections,
     read_sample_ir,
     read_sample_news,
@@ -113,14 +116,30 @@ class Agent:
         """Execute a single plan step."""
         match step.step_type:
             case StepType.LOAD_IR:
-                self.context["ir_releases_raw"] = read_sample_ir(
-                    step.params["ticker"], step.params["date"]
-                )
+                if self.mode == "live":
+                    # Fetch live IR data
+                    stock_info = self.context.get("stock_info", {})
+                    company_name = stock_info.get("name", "")
+                    self.context["ir_releases_raw"] = fetch_live_ir(
+                        step.params["ticker"], company_name
+                    )
+                else:
+                    self.context["ir_releases_raw"] = read_sample_ir(
+                        step.params["ticker"], step.params["date"]
+                    )
 
             case StepType.LOAD_NEWS:
-                self.context["news_raw"] = read_sample_news(
-                    step.params["ticker"], step.params["date"]
-                )
+                if self.mode == "live":
+                    # First fetch stock info for company name
+                    if "stock_info" not in self.context:
+                        self.context["stock_info"] = fetch_live_stock_info(step.params["ticker"])
+                    stock_info = self.context["stock_info"]
+                    company_name = stock_info.get("name", "")
+                    self.context["news_raw"] = fetch_live_news(step.params["ticker"], company_name)
+                else:
+                    self.context["news_raw"] = read_sample_news(
+                        step.params["ticker"], step.params["date"]
+                    )
 
             case StepType.SELECT_ITEMS:
                 if step.params["source"] == "ir":
