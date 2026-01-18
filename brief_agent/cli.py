@@ -44,6 +44,20 @@ def main() -> int:
         help="Output directory (default: output)",
     )
 
+    # UI command
+    ui_parser = subparsers.add_parser("ui", help="Start the web interface")
+    ui_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to (default: 127.0.0.1)",
+    )
+    ui_parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind to (default: 8000)",
+    )
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -52,8 +66,26 @@ def main() -> int:
 
     if args.command == "run":
         return run_brief(args)
+    
+    if args.command == "ui":
+        return run_ui(args)
 
     return 0
+
+
+def run_ui(args) -> int:
+    """Start the web UI."""
+    try:
+        import uvicorn
+        print(f"🚀 Starting UI at http://{args.host}:{args.port}")
+        uvicorn.run("brief_agent.api:app", host=args.host, port=args.port, reload=True)
+        return 0
+    except ImportError:
+        print("❌ Error: 'uvicorn' not found. Please run 'pip install uvicorn'")
+        return 1
+    except Exception as e:
+        print(f"❌ Error starting UI: {e}")
+        return 1
 
 
 def run_brief(args) -> int:

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IR & News Brief Agent</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Action Panel -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h1>IR Agent</h1>
+                <p>Command Center</p>
+            </div>
+
+            <div class="control-panel">
+                <h2>Generate New Brief</h2>
+                <form id="generateForm">
+                    <div class="form-group">
+                        <label for="ticker">Ticker</label>
+                        <input type="text" id="ticker" name="ticker" placeholder="NOKIA.HE" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mode">Mode</label>
+                        <select id="mode" name="mode">
+                            <option value="demo">Demo</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="generateBtn">
+                        <span class="btn-text">Generate Brief</span>
+                        <div class="spinner hidden"></div>
+                    </button>
+                    <p id="statusMsg" class="status-msg"></p>
+                </form>
+            </div>
+
+            <div class="info-box">
+                <p>Use <strong>Demo</strong> mode to generate briefs without API keys using sample data.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Recent Briefs</h2>
+                <button id="refreshBtn" class="btn-icon" title="Refresh list">↻</button>
+            </header>
+
+            <div id="briefsGrid" class="briefs-grid">
+                <!-- Brief cards will be injected here -->
+                <div class="loading-state">Loading briefs...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Brief View -->
+    <div id="briefModal" class="modal hidden">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="modalTitle">Brief Content</h2>
+                <div class="modal-actions">
+                    <button id="copyBtn" class="btn-secondary">Copy text</button>
+                    <button id="closeModal" class="btn-icon">×</button>
+                </div>
+            </header>
+            <div class="modal-body" id="modalBody">
+                <!-- Content injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
