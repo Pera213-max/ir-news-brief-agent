@@ -65,12 +65,14 @@ async def list_briefs():
             if len(parts) >= 3:
                 ticker = parts[1]
                 date = parts[2]
-                briefs.append({
-                    "filename": file.name,
-                    "ticker": ticker,
-                    "date": date,
-                    "timestamp": file.stat().st_mtime
-                })
+                briefs.append(
+                    {
+                        "filename": file.name,
+                        "ticker": ticker,
+                        "date": date,
+                        "timestamp": file.stat().st_mtime,
+                    }
+                )
         except Exception:
             continue
 

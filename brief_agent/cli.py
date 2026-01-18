@@ -77,6 +77,7 @@ def run_ui(args) -> int:
     """Start the web UI."""
     try:
         import uvicorn
+
         print(f"🚀 Starting UI at http://{args.host}:{args.port}")
         uvicorn.run("brief_agent.api:app", host=args.host, port=args.port, reload=True)
         return 0

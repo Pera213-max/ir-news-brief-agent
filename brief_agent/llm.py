@@ -215,7 +215,7 @@ Include a limitations array with disclaimers about the analysis."""
             import re
 
             # Extract JSON from response (may be wrapped in markdown code blocks)
-            json_match = re.search(r'\{[\s\S]*\}', response_text)
+            json_match = re.search(r"\{[\s\S]*\}", response_text)
             if json_match:
                 result = json.loads(json_match.group())
                 # Ensure all required keys exist
@@ -223,10 +223,13 @@ Include a limitations array with disclaimers about the analysis."""
                     "summary_bullets": result.get("summary_bullets", [])[:6],
                     "drivers": result.get("drivers", []),
                     "risks": result.get("risks", []),
-                    "limitations": result.get("limitations", [
-                        "Generated using AI analysis.",
-                        "Not intended as investment advice.",
-                    ]),
+                    "limitations": result.get(
+                        "limitations",
+                        [
+                            "Generated using AI analysis.",
+                            "Not intended as investment advice.",
+                        ],
+                    ),
                 }
         except Exception as e:
             self.logger.warning(f"Failed to parse Gemini response: {e}, using demo fallback")
@@ -284,4 +287,3 @@ def get_llm(mode: str = "demo") -> BaseLLM:
     # Default fallback
     logger.info(f"Unknown mode '{mode}', using demo mode")
     return DemoLLM()
-

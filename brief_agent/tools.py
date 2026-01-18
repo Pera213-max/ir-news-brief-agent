@@ -118,9 +118,7 @@ def llm_generate_sections(llm: BaseLLM, context: dict[str, Any]) -> dict[str, An
     return result
 
 
-def write_output_files(
-    brief: BriefOutput, output_dir: Path | str = "output"
-) -> tuple[Path, Path]:
+def write_output_files(brief: BriefOutput, output_dir: Path | str = "output") -> tuple[Path, Path]:
     """
     Write brief to markdown and JSON files.
 

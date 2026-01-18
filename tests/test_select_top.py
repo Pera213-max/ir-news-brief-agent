@@ -1,6 +1,5 @@
 """Tests for item selection logic."""
 
-
 from brief_agent.tools import select_top_items
 
 
