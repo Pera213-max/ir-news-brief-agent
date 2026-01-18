@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const spinner = generateBtn.querySelector('.spinner');
     const statusMsg = document.getElementById('statusMsg');
     const copyBtn = document.getElementById('copyBtn');
+    const tickerInput = document.getElementById('ticker');
+    const autocompleteList = document.getElementById('autocompleteList');
 
     // Oletuspäivämäärä
     document.getElementById('date').valueAsDate = new Date();
@@ -34,6 +36,60 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => copyBtn.textContent = 'Kopioi teksti', 2000);
         });
     });
+
+    // Ticker autocomplete
+    let debounceTimer;
+    tickerInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const query = e.target.value.trim();
+
+        if (query.length < 1) {
+            autocompleteList.classList.add('hidden');
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/tickers?q=${encodeURIComponent(query)}`);
+                const tickers = await res.json();
+                showAutocomplete(tickers);
+            } catch (err) {
+                console.error('Autocomplete error:', err);
+            }
+        }, 200);
+    });
+
+    // Sulje autocomplete kun klikataan muualle
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.autocomplete-wrapper')) {
+            autocompleteList.classList.add('hidden');
+        }
+    });
+
+    function showAutocomplete(tickers) {
+        if (tickers.length === 0) {
+            autocompleteList.classList.add('hidden');
+            return;
+        }
+
+        autocompleteList.innerHTML = tickers.map(t => `
+            <div class="autocomplete-item" data-ticker="${t.ticker}">
+                <span class="ticker-symbol">${t.ticker}</span>
+                <span class="ticker-name">${t.name}</span>
+                <span class="ticker-market">${t.market}</span>
+            </div>
+        `).join('');
+
+        autocompleteList.classList.remove('hidden');
+
+        // Klikkaus-käsittelijät
+        autocompleteList.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', () => {
+                tickerInput.value = item.dataset.ticker;
+                autocompleteList.classList.add('hidden');
+            });
+        });
+    }
 
     // Tiivistelmän luonti
     generateForm.addEventListener('submit', async (e) => {

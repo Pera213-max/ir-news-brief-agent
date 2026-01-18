@@ -102,3 +102,12 @@ async def generate_brief(request: GenerateRequest, background_tasks: BackgroundT
     """Trigger brief generation."""
     background_tasks.add_task(run_agent_task, request.ticker, request.date, request.mode)
     return {"status": "accepted", "message": f"Generation started for {request.ticker}"}
+
+
+@app.get("/api/tickers")
+async def search_tickers_endpoint(q: str = ""):
+    """Search for stock tickers."""
+    from .stocks import search_tickers
+
+    results = search_tickers(q, limit=10)
+    return results

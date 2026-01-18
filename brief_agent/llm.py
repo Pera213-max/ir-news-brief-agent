@@ -38,7 +38,7 @@ class DemoLLM(BaseLLM):
     def generate_sections(self, context: dict[str, Any]) -> dict[str, Any]:
         """
         Generate brief sections from context data.
-        Creates deterministic output based on the provided IR releases and news items.
+        Creates Finnish output based on the provided IR releases and news items.
         """
         ticker = context.get("ticker", "UNKNOWN")
         ir_releases = context.get("ir_releases", [])
@@ -46,48 +46,59 @@ class DemoLLM(BaseLLM):
 
         # Generate summary bullets from actual data (Finnish)
         summary_bullets = []
-        if ir_releases:
-            summary_bullets.append(
-                f"{ticker} julkaisi {len(ir_releases)} IR-tiedotetta tarkastelujaksolla."
-            )
-            if ir_releases[0].get("title"):
-                summary_bullets.append(f"Tärkein IR-uutinen: {ir_releases[0]['title']}")
 
+        # Add context-aware summaries based on actual news
         if news_items:
-            summary_bullets.append(
-                f"Mediakattavuus sisältää {len(news_items)} relevanttia uutista."
-            )
+            # Get first news item for summary
+            first_news = news_items[0]
+            title = first_news.get("title", "")
+            if title:
+                summary_bullets.append(f"Uutinen: {title[:100]}...")
+
+            summary_bullets.append(f"Löydettiin {len(news_items)} uutista yrityksestä {ticker}.")
             sources = set(item.get("source", "") for item in news_items[:3])
-            summary_bullets.append(f"Uutislähteet: {', '.join(filter(None, sources))}")
+            if sources:
+                summary_bullets.append(f"Lähteet: {', '.join(filter(None, sources))}")
+
+        if ir_releases:
+            summary_bullets.append(f"IR-tiedotteita: {len(ir_releases)} kpl tarkastelujaksolla.")
+            if ir_releases[0].get("title"):
+                ir_title = ir_releases[0]["title"][:80]
+                summary_bullets.append(f"Tärkein tiedote: {ir_title}")
 
         # Ensure we have at least 3 bullets
         while len(summary_bullets) < 3:
-            summary_bullets.append("Yritys ylläpitää aktiivista sijoittajaviestintää.")
+            summary_bullets.append(f"Analyysi perustuu julkisiin uutisiin yrityksestä {ticker}.")
 
-        # Generate drivers based on data (Finnish)
-        drivers = [
-            "Vahva Q4-tulos ylitti analyytikoiden odotukset",
-            "Strategiset kumppanuudet laajentavat pilvi- ja 5G-kyvykkyyksiä",
-            "Kasvava yrityskysyntä yksityisille verkkoratkaisuille",
-        ]
+        # Generate drivers based on actual news content (Finnish)
+        drivers = []
+        for item in news_items[:3]:
+            title = item.get("title", "")
+            if title:
+                # Create a driver-style bullet from news
+                drivers.append(f"Uutisanalyysi: {title[:80]}")
 
-        # Generate risks (Finnish)
+        # Add generic drivers if not enough
+        while len(drivers) < 3:
+            drivers.append("Lisätietoja saatavilla yhtiön sijoittajasivuilta.")
+
+        # Generate risks (Finnish) - based on general market
         risks = [
-            "Toimitusketjun rajoitukset voivat vaikuttaa tuotantokapasiteettiin",
-            "Kilpailupaine suurilta televiestintälaitevalmistajilta",
-            "Valuuttakurssien vaikutus EUR-määräisiin tuloihin",
+            "Markkinatilanne voi vaikuttaa osakekurssiin",
+            "Toimialaan liittyvät yleiset riskit",
+            "Valuuttakurssien ja korkojen vaikutus tulokseen",
         ]
 
         # Limitations disclaimer (Finnish)
         limitations = [
-            "Tämä tiivistelmä on luotu demo-tilassa esimerkkidatalla.",
-            "Todelliset markkinaolosuhteet voivat poiketa esimerkkiskenaarioista.",
-            "Ei sijoitusneuvontaa. Konsultoi talousneuvoja.",
+            f"Tiivistelmä perustuu automaattiseen uutishakuun.",
+            "Analyysi ei ole sijoitussuositus.",
+            "Tarkista tiedot yhtiön virallisista lähteistä.",
         ]
 
         return {
             "summary_bullets": summary_bullets[:6],  # Max 6 bullets
-            "drivers": drivers,
+            "drivers": drivers[:3],
             "risks": risks,
             "limitations": limitations,
         }

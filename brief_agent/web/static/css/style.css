@@ -313,3 +313,66 @@ select:focus {
     font-size: 0.75rem;
     color: var(--accent);
 }
+
+/* Autocomplete */
+.autocomplete-wrapper {
+    position: relative;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 50;
+    margin-top: 4px;
+    box-shadow: var(--shadow);
+}
+
+.autocomplete-list.hidden {
+    display: none;
+}
+
+.autocomplete-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.15s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--bg-hover);
+}
+
+.ticker-symbol {
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 80px;
+}
+
+.ticker-name {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.ticker-market {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background-color: var(--bg-dark);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+}
